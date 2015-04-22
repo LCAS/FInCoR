@@ -1,0 +1,8 @@
+to_pose_array:
+    detectors:                                  # Add detectors under this namespace
+        circle_detector_left:                           # Name of detector (used internally to identify them. Has to be unique.
+            topic: "/circledetection/left_circleArray"  # The topic on which the geometry_msgs/PoseArray is published
+            point_name: "position"                   # The name of the point containing the coordinates in question
+        circle_detector_right:                           # Name of detector (used internally to identify them. Has to be unique.
+            topic: "/circledetection/right_circleArray"  # The topic on which the geometry_msgs/PoseArray is published
+            point_name: "position"                   # The name of the point containing the coordinates in question
