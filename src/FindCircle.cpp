@@ -81,7 +81,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             if(isnan(objectArray[i].yaw)) continue;
 
             // printf("X:%f  Y:%f Z:%f R:%f\n", objectArray[i].x, objectArray[i].y, objectArray[i].z, objectArray[i].bwratio);
-            std::cout << "F: " << msg->header.frame_id << "  X: " << objectArray[i].x << "  Y: " << objectArray[i].y << "  Z: " << objectArray[i].z << "  R: " << objectArray[i].bwratio << std::endl;
+            //std::cout << "F: " << msg->header.frame_id << "  X: " << objectArray[i].x << "  Y: " << objectArray[i].y << "  Z: " << objectArray[i].z << "  R: " << objectArray[i].bwratio << std::endl;
 
             geometry_msgs::Pose circlePose;
             circlePose.position.x = -objectArray[i].y;

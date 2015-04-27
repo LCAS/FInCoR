@@ -314,15 +314,15 @@ bool CTransformation::saveCalibration() {
             ROS_WARN("Calibration file %s could not be saved.", configFilename.c_str());
             return false;
         }
-        fprintf(file, "charging:\n");
-        fprintf(file, " dockOffsetX: %lf\n", dockOffset.x);
-        fprintf(file, " dockOffsetY: %lf\n", dockOffset.y);
-        fprintf(file, " dockOffsetZ: %lf\n", dockOffset.z);
-        fprintf(file, " ownOffsetX: %lf\n", ownOffset.x);
-        fprintf(file, " ownOffsetY: %lf\n", ownOffset.y);
-        fprintf(file, " ownOffsetZ: %lf\n", ownOffset.z);
-        fclose(file);
-        ROS_INFO("Calibration parameters saved to: %s", configFilename.c_str());
+        //fprintf(file, "charging:\n");
+        //fprintf(file, " dockOffsetX: %lf\n", dockOffset.x);
+        //fprintf(file, " dockOffsetY: %lf\n", dockOffset.y);
+        //fprintf(file, " dockOffsetZ: %lf\n", dockOffset.z);
+        //fprintf(file, " ownOffsetX: %lf\n", ownOffset.x);
+        //fprintf(file, " ownOffsetY: %lf\n", ownOffset.y);
+        //fprintf(file, " ownOffsetZ: %lf\n", ownOffset.z);
+        //fclose(file);
+        //ROS_INFO("Calibration parameters saved to: %s", configFilename.c_str());
         return true;
     }
     return savedOK;

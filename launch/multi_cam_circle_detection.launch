@@ -7,12 +7,12 @@
     <arg name="user" default="" />
 
 	<!-- start circle detection and tracking for left camera -->
-	<node name="LeftCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen" clear_params="true">
+	<node name="LeftCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
 		<param name="camera" type="str" value="Left" />
 	</node>
 
 	<!-- start circle detection and tracking for right camera -->
-	<node name="RightCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen" clear_params="true">
+	<node name="RightCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
 		<param name="camera" type="str" value="Right" />
 	</node>
 
