@@ -12,25 +12,17 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     tf)
 
+find_package(Boost REQUIRED)
+
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
 pkg_check_modules(GSL REQUIRED gsl)
 include_directories(${GSL_INCLUDE_DIRS})
 link_directories(${GSL_LIBRARY_DIRS})
 
-#add_service_files(
-#   FILES
-#   Charging.srv
-#)
-
 add_message_files(
    FILES
    STrackedObject.msg
 )
-
-#add_action_files(
-#   DIRECTORY action 
-   #FILES Charging.action
-#)
 
 generate_messages(
   DEPENDENCIES
@@ -49,22 +41,27 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 # Libraries
 add_library(CCircleDetect src/CCircleDetect.cpp)
 add_library(CRawImage src/CRawImage.cpp)
 add_library(CTransformation src/CTransformation.cpp)
+add_library(FindCircle src/FindCircle.cpp)
 
 add_dependencies(CTransformation ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
-#add_dependencies(CChargingClient ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
-#add_dependencies(CPtuClient ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(FindCircle ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(CTransformation ${GSL_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(CTransformation 
+${GSL_LIBRARIES} 
+${catkin_LIBRARIES}
+${Boost_LIBRARIES}
+)
  
 # Executables
-add_executable(circle_finder src/FindCircle.cpp)
 
+add_executable(circle_finder src/FindCircle.cpp)
 add_dependencies(circle_finder ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries (circle_finder 
@@ -75,9 +72,6 @@ target_link_libraries (circle_finder
     blas
     ${catkin_LIBRARIES}
     )
-#target_link_libraries (circle_finder_client  ${catkin_LIBRARIES})
-#target_link_libraries (simple_move_client  ${catkin_LIBRARIES})
-#target_link_libraries (simple_ptu_client  ${catkin_LIBRARIES})
 
 #############
 ## Install ##
