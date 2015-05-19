@@ -13,7 +13,8 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <tf/transform_broadcaster.h>
-#include "circle_detection/STrackedObject.h"
+#include "circle_detection/detection_results.h"
+#include "circle_detection/detection_results_array.h"
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <sensor_msgs/Image.h>
@@ -23,14 +24,11 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <map>
 #include <string>
-//#include<iostream>
 
 #define MAX_PATTERNS 6
 
 class FindCircle {
 public:
-
-
 
     int defaultImageWidth;
     int defaultImageHeight;

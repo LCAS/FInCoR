@@ -21,12 +21,13 @@ link_directories(${GSL_LIBRARY_DIRS})
 
 add_message_files(
    FILES
-   STrackedObject.msg
+   detection_results.msg
+   detection_results_array.msg
 )
 
 generate_messages(
   DEPENDENCIES
-  geometry_msgs 
+  geometry_msgs
   std_msgs
 )
 

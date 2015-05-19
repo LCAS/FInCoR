@@ -16,7 +16,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 
     memcpy(image->data, (void*) &msg->data[0], msg->step * msg->height);
 
-    circle_detection::STrackedObject tracked_objects;
+    circle_detection::detection_results_array tracked_objects;
     tracked_objects.header = msg->header;
     visualization_msgs::MarkerArray marker_list;
 
@@ -29,6 +29,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
         if (currentSegmentArray[i].valid) {
             objectArray[i] = trans->transform(currentSegmentArray[i]);
 
+            // Filter error values
             if (isnan(objectArray[i].x)) continue;
             if (isnan(objectArray[i].y)) continue;
             if (isnan(objectArray[i].z)) continue;
@@ -36,32 +37,34 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             if (isnan(objectArray[i].pitch)) continue;
             if (isnan(objectArray[i].yaw)) continue;
 
-            geometry_msgs::Pose circlePose;
-            // Convert to ROS Coordinate System
-            circlePose.position.x = -objectArray[i].y;
-            circlePose.position.y = -objectArray[i].z;
-            circlePose.position.z = objectArray[i].x;
+            // temp value to hold current detection
+            circle_detection::detection_results objectsToAdd;
+
+            // Convert to ROS standard Coordinate System
+            objectsToAdd.pose.position.x = -objectArray[i].y;
+            objectsToAdd.pose.position.y = -objectArray[i].z;
+            objectsToAdd.pose.position.z = objectArray[i].x;
 
             // Convert YPR to Quaternion
             tf::Quaternion q;
             q.setRPY(objectArray[i].roll, objectArray[i].pitch, objectArray[i].yaw);
-            circlePose.orientation.x = q.getX();
-            circlePose.orientation.y = q.getY();
-            circlePose.orientation.z = q.getZ();
-            circlePose.orientation.w = q.getW();
+            objectsToAdd.pose.orientation.x = q.getX();
+            objectsToAdd.pose.orientation.y = q.getY();
+            objectsToAdd.pose.orientation.z = q.getZ();
+            objectsToAdd.pose.orientation.w = q.getW();
 
-            // Add to msg array
-            std::cout << floor(objectArray[i].bwratio) << std::endl;
-            std::cout << startup_time_str << std::endl;
-            std::string toDel = generateUUID(startup_time_str,round(objectArray[i].bwratio));
-            std::cout << toDel << std::endl;
-            std::cout << "=============================" << std::endl;
-            
-            tracked_objects.uuid.push_back(toDel);
-            tracked_objects.pose.push_back(circlePose);
-            tracked_objects.roundness.push_back(objectArray[i].roundness);
-            tracked_objects.bwratio.push_back(objectArray[i].bwratio);
-            tracked_objects.esterror.push_back(objectArray[i].esterror);
+            // This needs to be replaced with a unique label as ratio is unreliable
+            objectsToAdd.uuid = generateUUID(startup_time_str,floor(objectArray[i].bwratio));
+            objectsToAdd.roundness = objectArray[i].roundness;
+            objectsToAdd.bwratio = objectArray[i].bwratio;
+            objectsToAdd.esterror = objectArray[i].esterror;
+
+            // Hardcoded values need to be replaced
+            objectsToAdd.objectsize.x = 3;
+            objectsToAdd.objectsize.y = 3;
+            objectsToAdd.objectsize.z = 0;
+
+            tracked_objects.tracked_objects.push_back(objectsToAdd);
 
             // Generate RVIZ marker for visualisation
             visualization_msgs::Marker marker;
@@ -69,7 +72,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             marker.id = floor(objectArray[i].bwratio);
             marker.type = visualization_msgs::Marker::SPHERE;
             marker.action = visualization_msgs::Marker::MODIFY;
-            marker.pose = circlePose;
+            marker.pose = objectsToAdd.pose;
             marker.scale.x = 0.01;
             marker.scale.y = 0.01;
             marker.scale.z = 0.1;
@@ -82,7 +85,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
         }
     }
 
-    if ((marker_list.markers.size() > 0) && (tracked_objects.pose.size() > 0)) {
+    if ((marker_list.markers.size() > 0) && (tracked_objects.tracked_objects.size() > 0)) {
 
         if (tracked_objects.header.frame_id.find("left") != std::string::npos) {
             pubLeft.publish(tracked_objects);
@@ -145,8 +148,8 @@ void FindCircle::init(int argc, char* argv[]) {
     image_transport::Subscriber subim = it.subscribe("/" + topic + "/rgb/image_mono", 1, &FindCircle::imageCallback, this);
 
     imdebug = it.advertise("/circledetection/" + topic + "/rgb/processedimage", 1);
-    pubLeft = nh->advertise<circle_detection::STrackedObject>("/circledetection/left_circleArray", 0);
-    pubRight = nh->advertise<circle_detection::STrackedObject>("/circledetection/right_circleArray", 0);
+    pubLeft = nh->advertise<circle_detection::detection_results_array>("/circledetection/left_circleArray", 0);
+    pubRight = nh->advertise<circle_detection::detection_results_array>("/circledetection/right_circleArray", 0);
     vis_pub = nh->advertise<visualization_msgs::MarkerArray>("/circledetection/rviz_marker", 0);
     lookup = new tf::TransformListener();
     ROS_DEBUG("Server running");

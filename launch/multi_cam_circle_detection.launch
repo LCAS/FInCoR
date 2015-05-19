@@ -31,7 +31,7 @@
 	    <arg name="param_file" value="$(find circle_detection)/config/to_pose_array.yaml" />
 	</include>
 
-	<!-- start bayes people tracker for 2D tracking  -->
+	<!-- start bayes people tracker for 3D tracking  -->
     <include file='$(find bayes_people_tracker)/launch/people_tracker.launch'>
         <arg name='target_frame' value='base' />
     </include>
