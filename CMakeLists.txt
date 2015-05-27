@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.3)
 project(circle_detection)
 
 find_package(catkin REQUIRED COMPONENTS 
-    dynamic_reconfigure
     geometry_msgs
     image_transport 
     message_generation
