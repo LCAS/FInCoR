@@ -150,7 +150,7 @@ void FindCircle::init(int argc, char* argv[]) {
     imdebug = it.advertise("/circledetection/" + topic + "/rgb/processedimage", 1);
     pubLeft = nh->advertise<circle_detection::detection_results_array>("/circledetection/left_circleArray", 0);
     pubRight = nh->advertise<circle_detection::detection_results_array>("/circledetection/right_circleArray", 0);
-    vis_pub = nh->advertise<visualization_msgs::MarkerArray>("/circledetection/rviz_marker", 0);
+    vis_pub = nh->advertise<visualization_msgs::MarkerArray>("/circledetection/" + topic + "/rviz_marker", 0);
     lookup = new tf::TransformListener();
     ROS_DEBUG("Server running");
     ros::spin();

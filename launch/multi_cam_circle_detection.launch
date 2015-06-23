@@ -6,34 +6,28 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-	<!-- start circle detection and tracking for left camera -->
-	<node name="LeftCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
-		<param name="camera" type="str" value="Left" />
-	</node>
+    <!-- start circle detection and tracking for left camera -->
+    <node name="LeftCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+        <param name="camera" type="str" value="Left" />
+    </node>
 
-	<!-- start circle detection and tracking for right camera -->
-	<node name="RightCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
-		<param name="camera" type="str" value="Right" />
-	</node>
+    <!-- start circle detection and tracking for right camera -->
+    <node name="RightCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+        <param name="camera" type="str" value="Right" />
+    </node>
 
-	<!-- view procesed image from left circle tracker  -->
-	<node name="view_left" pkg="image_view" type="image_view" required="true">
-		<remap from="image" to="/circledetection/left/rgb/processedimage"/>
-	</node>
+    <!-- view procesed image from left circle tracker  -->
+    <node name="view_left" pkg="image_view" type="image_view" required="true">
+        <remap from="image" to="/circledetection/left/rgb/processedimage"/>
+    </node>
 
-	<!-- view procesed image from right circle tracker  -->
-	<node name="view_right" pkg="image_view" type="image_view" required="true">
-		<remap from="image" to="/circledetection/right/rgb/processedimage"/>
-	</node>
-
-	<!-- custom msg to pose msg convertion -->
-	<include file="$(find detector_msg_to_pose_array)/launch/to_pose_array.launch">
-	    <arg name="param_file" value="$(find circle_detection)/config/to_pose_array.yaml" />
-	</include>
-
-	<!-- start bayes people tracker for 3D tracking  -->
-    <include file='$(find bayes_people_tracker)/launch/people_tracker.launch'>
+    <!-- view procesed image from right circle tracker  -->
+    <node name="view_right" pkg="image_view" type="image_view" required="true">
+        <remap from="image" to="/circledetection/right/rgb/processedimage"/>
+    </node>
+    <!-- start bayes people tracker for 3D tracking  -->
+    <!-- <include file='$(find bayes_people_tracker)/launch/people_tracker.launch'>
         <arg name='target_frame' value='base' />
     </include>
-
+-->
 </launch>
