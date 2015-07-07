@@ -298,12 +298,13 @@ bool CTransformation::saveCalibration() {
     std::string configFilename = "";
     bool savedOK = true;
 
-    savedOK = savedOK && saveParamInDB("/charging/ownOffsetX");
-    savedOK = savedOK && saveParamInDB("/charging/ownOffsetY");
-    savedOK = savedOK && saveParamInDB("/charging/ownOffsetZ");
-    savedOK = savedOK && saveParamInDB("/charging/dockOffsetX");
-    savedOK = savedOK && saveParamInDB("/charging/dockOffsetY");
-    savedOK = savedOK && saveParamInDB("/charging/dockOffsetZ");
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/ownOffsetX"));
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/ownOffsetY"));
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/ownOffsetZ"));
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/dockOffsetX"));
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/dockOffsetY"));
+    savedOK = savedOK && saveParamInDB((char*) ("/charging/dockOffsetZ"));
+
     if (savedOK == false) ROS_WARN("Calibration parameters could not be saved in the datacentre.");
     if (nh->getParam("configFile", configFilename) == false) {
         ROS_WARN("Config file not set, calibration parameters will not be saved.");
