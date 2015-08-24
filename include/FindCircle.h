@@ -52,11 +52,10 @@ private:
     ros::NodeHandle *nh;
     image_transport::Publisher imdebug;
     tf::TransformListener* lookup;
-    ros::Publisher pubLeft, pubRight, vis_pub;
+    ros::Publisher pub, vis_pub;
 
     // Tracking Code
     std::clock_t start;
-    std::string topic;
     CRawImage *image;
     CCircleDetect *detectorArray[MAX_PATTERNS];
     STrackedObject objectArray[MAX_PATTERNS];
