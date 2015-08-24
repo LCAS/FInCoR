@@ -3,20 +3,18 @@ project(circle_detection)
 
 find_package(catkin REQUIRED COMPONENTS 
     geometry_msgs
-    image_transport 
+    image_transport
     message_generation
+    mongodb_store
     roscpp
-    rospy 
+    rospy
     sensor_msgs
     std_msgs
-    tf)
+    tf
+    visualization_msgs
+)
 
 find_package(Boost REQUIRED)
-
-include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
-pkg_check_modules(GSL REQUIRED gsl)
-include_directories(${GSL_INCLUDE_DIRS})
-link_directories(${GSL_LIBRARY_DIRS})
 
 add_message_files(
    FILES
@@ -31,12 +29,9 @@ generate_messages(
 )
 
 catkin_package(
-   INCLUDE_DIRS include
+   INCLUDE_DIRS include CATKIN_DEPENDS geometry_msgs image_transport message_runtime mongodb_store sensor_msgs tf visualization_msgs
 )
-
-###########
-## Build ##
-###########
+include_directories(${GSL_INCLUDE_DIRS})
 
 include_directories(
   include
@@ -53,8 +48,8 @@ add_library(FindCircle src/FindCircle.cpp)
 add_dependencies(CTransformation ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 add_dependencies(FindCircle ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(CTransformation 
-${GSL_LIBRARIES} 
+target_link_libraries(CTransformation
+${GSL_LIBRARIES}
 ${catkin_LIBRARIES}
 ${Boost_LIBRARIES}
 )
@@ -64,39 +59,28 @@ ${Boost_LIBRARIES}
 add_executable(circle_finder src/FindCircle.cpp)
 add_dependencies(circle_finder ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries (circle_finder 
+target_link_libraries(circle_finder
     CCircleDetect
     CRawImage
     CTransformation
     gsl
     blas
     ${catkin_LIBRARIES}
-    )
+)
 
-#############
-## Install ##
-#############
+install(TARGETS
+    CCircleDetect
+    CRawImage
+    CTransformation
+    circle_finder ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION} LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION} RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
-install(TARGETS 
-    CCircleDetect 
-    CRawImage 
-    CTransformation 
-    circle_finder 
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-    )
+ install(DIRECTORY include/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
 
- install(DIRECTORY include/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    FILES_MATCHING PATTERN "*.h"
-    PATTERN ".svn" EXCLUDE
-    )
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(DIRECTORY launch
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
+install(DIRECTORY doc DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(DIRECTORY doc
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
+include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
+pkg_check_modules(GSL REQUIRED gsl)
+link_directories(${GSL_LIBRARY_DIRS})
