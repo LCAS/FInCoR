@@ -53,7 +53,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             objectsToAdd.pose.orientation.w = q.getW();
 
             // This needs to be replaced with a unique label as ratio is unreliable
-            objectsToAdd.uuid = generateUUID(startup_time_str,floor(objectArray[i].bwratio));
+            objectsToAdd.uuid = generateUUID(startup_time_str, floor(objectArray[i].bwratio));
             objectsToAdd.roundness = objectArray[i].roundness;
             objectsToAdd.bwratio = objectArray[i].bwratio;
             objectsToAdd.esterror = objectArray[i].esterror;
@@ -85,7 +85,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     }
 
     if ((marker_list.markers.size() > 0) && (tracked_objects.tracked_objects.size() > 0)) {
-            pub.publish(tracked_objects);
+        pub.publish(tracked_objects);
         vis_pub.publish(marker_list);
     }
     memcpy((void*) &msg->data[0], image->data, msg->step * msg->height);
@@ -111,13 +111,28 @@ FindCircle::~FindCircle(void) {
 }
 
 void FindCircle::init(int argc, char* argv[]) {
+    if (!nh->getParam("image_input_topic", this->im_topic)) {
+        throw std::invalid_argument("image_input_topic not defined");
+    }
 
-//    if (nh->getParam("detectionTopic", topic)) {
-//
-//    }
+    if (!nh->getParam("image_output_topic", this->debug_topic)) {
+        throw std::invalid_argument("image_output_topic not defined");
+    }
+
+    if (!nh->getParam("camera_info", this->cam_info)) {
+        throw std::invalid_argument("camera_info not defined");
+    }
+
+    if (!nh->getParam("results_topic", this->result_topic)) {
+        throw std::invalid_argument("results_topic not defined");
+    }
+
+    if (!nh->getParam("marker_topic", this->viz_topic)) {
+        throw std::invalid_argument("marker_topic not defined");
+    }
 
     image_transport::ImageTransport it(*nh);
-    nh->subscribe("/usb_cam/camera_info", 1, &FindCircle::cameraInfoCallBack, this);
+    nh->subscribe(this->cam_info, 1, &FindCircle::cameraInfoCallBack, this);
     image = new CRawImage(defaultImageWidth, defaultImageHeight, 4);
     trans = new CTransformation(circleDiameter, nh);
     for (int i = 0; i < MAX_PATTERNS; i++) {
@@ -125,18 +140,17 @@ void FindCircle::init(int argc, char* argv[]) {
     }
 
     image->getSaveNumber();
-    image_transport::Subscriber subim = it.subscribe("/usb_cam/image_raw", 1, &FindCircle::imageCallback, this);
+    image_transport::Subscriber subim = it.subscribe(this->im_topic, 1, &FindCircle::imageCallback, this);
 
-    imdebug = it.advertise("/circledetection/abc/rgb/processedimage", 1);
-    pub = nh->advertise<circle_detection::detection_results_array>("/circledetection/circleArray", 0);
-    vis_pub = nh->advertise<visualization_msgs::MarkerArray>("/circledetection/abc/rviz_marker", 0);
+    imdebug = it.advertise(this->debug_topic, 1);
+    pub = nh->advertise<circle_detection::detection_results_array>(this->result_topic, 0);
+    vis_pub = nh->advertise<visualization_msgs::MarkerArray>(this->viz_topic, 0);
     lookup = new tf::TransformListener();
     ROS_DEBUG("Server running");
     ros::spin();
 }
 
 int main(int argc, char* argv[]) {
-
     ros::init(argc, argv, "circle_detector", ros::init_options::AnonymousName);
 
     FindCircle *detector = new FindCircle();
@@ -146,4 +160,5 @@ int main(int argc, char* argv[]) {
     //Clean up
     detector->~FindCircle();
     return 0;
+
 }

@@ -53,6 +53,7 @@ private:
     image_transport::Publisher imdebug;
     tf::TransformListener* lookup;
     ros::Publisher pub, vis_pub;
+    std::string im_topic, viz_topic, result_topic, debug_topic, cam_info;
 
     // Tracking Code
     std::clock_t start;
