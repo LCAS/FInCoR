@@ -4,13 +4,16 @@
   <version>0.0.14</version>
   <description> Object detection using circles </description>
 
-  <maintainer email="tkrajnik@lincoln.ac.uk">gestom</maintainer>
+  <maintainer email="plightbody@lincoln.ac.uk">Peter Lightbody</maintainer>
+  <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
 
   <license>MIT</license>
 
-  <url type="website">https://github.com/pet1330/FInCoR</url>
+  <url type="website">https://github.com/pet1330/FInCoR/tree/circle_only</url>
 
-  <author email="tkrajnik@lincoln.ac.uk">gestom</author>
+  <author email="plightbody@lincoln.ac.uk">Peter Lightbody</author>
+  <author email="tkrajnik@lincoln.ac.uk">Tomas Krajnik</author>
+
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>libblas-dev</buildtool_depend>
