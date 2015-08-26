@@ -28,7 +28,6 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 
         if (currentSegmentArray[i].valid) {
             objectArray[i] = trans->transform(currentSegmentArray[i]);
-
             // Filter error values
             if (isnan(objectArray[i].x)) continue;
             if (isnan(objectArray[i].y)) continue;
@@ -54,7 +53,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             objectsToAdd.pose.orientation.w = q.getW();
 
             // This needs to be replaced with a unique label as ratio is unreliable
-            objectsToAdd.uuid = generateUUID(startup_time_str,floor(objectArray[i].bwratio));
+            objectsToAdd.uuid = generateUUID(startup_time_str, floor(objectArray[i].bwratio));
             objectsToAdd.roundness = objectArray[i].roundness;
             objectsToAdd.bwratio = objectArray[i].bwratio;
             objectsToAdd.esterror = objectArray[i].esterror;
@@ -86,12 +85,7 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     }
 
     if ((marker_list.markers.size() > 0) && (tracked_objects.tracked_objects.size() > 0)) {
-
-        if (tracked_objects.header.frame_id.find("left") != std::string::npos) {
-            pubLeft.publish(tracked_objects);
-        } else {
-            pubRight.publish(tracked_objects);
-        }
+        pub.publish(tracked_objects);
         vis_pub.publish(marker_list);
     }
     memcpy((void*) &msg->data[0], image->data, msg->step * msg->height);
@@ -117,27 +111,28 @@ FindCircle::~FindCircle(void) {
 }
 
 void FindCircle::init(int argc, char* argv[]) {
+    if (!nh->getParam("image_input_topic", this->im_topic)) {
+        throw std::invalid_argument("image_input_topic not defined");
+    }
 
-    if (nh->getParam("camera", topic)) {
-        std::transform(topic.begin(), topic.end(), topic.begin(), ::tolower);
-    } else {
-        if (argc != 2) {
-            ROS_FATAL("Please supply whether you are subscribing to the left or right camera (R/L)");
-            return;
-        } else {
-            if (argv[1][0] == 'l' || argv[1][0] == 'L') {
-                topic = "left";
-            } else if (argv[1][0] == 'r' || argv[1][0] == 'R') {
-                topic = "right";
-            } else {
-                ROS_FATAL("Please supply whether you are subscribing to the left or right camera (R/L)");
-                return;
-            }
-        }
+    if (!nh->getParam("image_output_topic", this->debug_topic)) {
+        throw std::invalid_argument("image_output_topic not defined");
+    }
+
+    if (!nh->getParam("camera_info", this->cam_info)) {
+        throw std::invalid_argument("camera_info not defined");
+    }
+
+    if (!nh->getParam("results_topic", this->result_topic)) {
+        throw std::invalid_argument("results_topic not defined");
+    }
+
+    if (!nh->getParam("marker_topic", this->viz_topic)) {
+        throw std::invalid_argument("marker_topic not defined");
     }
 
     image_transport::ImageTransport it(*nh);
-    nh->subscribe("/" + topic + "/rgb/camera_info", 1, &FindCircle::cameraInfoCallBack, this);
+    nh->subscribe(this->cam_info, 1, &FindCircle::cameraInfoCallBack, this);
     image = new CRawImage(defaultImageWidth, defaultImageHeight, 4);
     trans = new CTransformation(circleDiameter, nh);
     for (int i = 0; i < MAX_PATTERNS; i++) {
@@ -145,19 +140,17 @@ void FindCircle::init(int argc, char* argv[]) {
     }
 
     image->getSaveNumber();
-    image_transport::Subscriber subim = it.subscribe("/" + topic + "/rgb/image_mono", 1, &FindCircle::imageCallback, this);
+    image_transport::Subscriber subim = it.subscribe(this->im_topic, 1, &FindCircle::imageCallback, this);
 
-    imdebug = it.advertise("/circledetection/" + topic + "/rgb/processedimage", 1);
-    pubLeft = nh->advertise<circle_detection::detection_results_array>("/circledetection/left_circleArray", 0);
-    pubRight = nh->advertise<circle_detection::detection_results_array>("/circledetection/right_circleArray", 0);
-    vis_pub = nh->advertise<visualization_msgs::MarkerArray>("/circledetection/" + topic + "/rviz_marker", 0);
+    imdebug = it.advertise(this->debug_topic, 1);
+    pub = nh->advertise<circle_detection::detection_results_array>(this->result_topic, 0);
+    vis_pub = nh->advertise<visualization_msgs::MarkerArray>(this->viz_topic, 0);
     lookup = new tf::TransformListener();
     ROS_DEBUG("Server running");
     ros::spin();
 }
 
 int main(int argc, char* argv[]) {
-
     ros::init(argc, argv, "circle_detector", ros::init_options::AnonymousName);
 
     FindCircle *detector = new FindCircle();
@@ -167,4 +160,5 @@ int main(int argc, char* argv[]) {
     //Clean up
     detector->~FindCircle();
     return 0;
+
 }

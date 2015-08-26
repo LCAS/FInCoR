@@ -1,33 +1,31 @@
 <?xml version="1.0"?>
 <launch>
+    
+    <arg name="image_input_topic" default="/rgb/image_raw" />
+    <arg name="image_output_topic" default="/circle_detection/output" />
+    <arg name="camera_info" default="/rgb/camera_info" />
+    <arg name="results_topic" default="/circle_detection/results_array" />
+    <arg name="marker_topic" default="/circle_detection/marker_array" />
+    
     <arg name="target_frame" default="/base" />
-    <arg name="positions" default="/people_tracker/positions" />
-    <arg name="marker" default="/people_tracker/marker_array" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-    <!-- start circle detection and tracking for left camera -->
-    <node name="LeftCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
-        <param name="camera" type="str" value="Left" />
+    <!-- start circle detection -->
+    <node name="CircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+        <param name="image_input_topic" type="str"  value="$(arg image_input_topic)" />
+        <param name="image_output_topic" type="str"  value="$(arg image_output_topic)" />
+        <param name="results_topic" type="str"  value="$(arg results_topic)" />
+        <param name="marker_topic" type="str"  value="$(arg marker_topic)" />
+        <param name="camera_info" type="str"  value="$(arg camera_info)" />
     </node>
 
-    <!-- start circle detection and tracking for right camera -->
-    <node name="RightCircleFinder" pkg="circle_detection" type="circle_finder" required="true" output="screen">
-        <param name="camera" type="str" value="Right" />
+    <!-- view procesed image from circle finder & original input image -->
+    <node name="view_original" pkg="image_view" type="image_view" required="false">
+        <remap from="image" to="$(arg image_input_topic)"/>
+    </node>
+    <node name="view_processed" pkg="image_view" type="image_view" required="false">
+        <remap from="image" to="$(arg image_output_topic)"/>
     </node>
 
-    <!-- view procesed image from left circle tracker  -->
-    <node name="view_left" pkg="image_view" type="image_view" required="true">
-        <remap from="image" to="/circledetection/left/rgb/processedimage"/>
-    </node>
-
-    <!-- view procesed image from right circle tracker  -->
-    <node name="view_right" pkg="image_view" type="image_view" required="true">
-        <remap from="image" to="/circledetection/right/rgb/processedimage"/>
-    </node>
-    <!-- start bayes people tracker for 3D tracking  -->
-    <!-- <include file='$(find bayes_people_tracker)/launch/people_tracker.launch'>
-        <arg name='target_frame' value='base' />
-    </include>
--->
 </launch>
