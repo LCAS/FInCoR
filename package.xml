@@ -16,7 +16,8 @@
 
 
   <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>libblas-dev</buildtool_depend>
+  <build_depend>libblas-dev</build_depend>
+  <build_depend>libgsl</build_depend>
   <build_depend>boost</build_depend>
   <build_depend>cv_bridge</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
