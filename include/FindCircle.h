@@ -25,7 +25,7 @@
 #include <map>
 #include <string>
 
-#define MAX_PATTERNS 6
+#define MAX_PATTERNS 16
 
 class FindCircle {
 public:
@@ -33,30 +33,21 @@ public:
     int defaultImageWidth;
     int defaultImageHeight;
     float circleDiameter;
-
+    std::string node_name;
+    void loadConfig(void);
     void cameraInfoCallBack(const sensor_msgs::CameraInfo &msg);
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
-    void init(int argc, char* argv[]);
+    void init(void);
     FindCircle(void);
     ~FindCircle(void);
 
 private:
-
-    // Generate universally unique ID
-    template<typename T>
-    std::string num_to_str(T num) {std::stringstream ss; ss << num; return ss.str();}
-    std::string startup_time_str;
-    boost::uuids::uuid dns_namespace_uuid;
-    std::string generateUUID(std::string time, int id);
-
     ros::NodeHandle *nh;
     image_transport::Publisher imdebug;
     tf::TransformListener* lookup;
-    ros::Publisher pub, vis_pub;
-    std::string im_topic, viz_topic, result_topic, debug_topic, cam_info;
-
-    // Tracking Code
-    std::clock_t start;
+    ros::Publisher tracks_pub, vis_pub;
+    image_transport::Subscriber subim;
+    
     CRawImage *image;
     CCircleDetect *detectorArray[MAX_PATTERNS];
     STrackedObject objectArray[MAX_PATTERNS];
