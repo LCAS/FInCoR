@@ -36,11 +36,6 @@ generate_messages(
 catkin_package(
    INCLUDE_DIRS include CATKIN_DEPENDS geometry_msgs image_transport message_runtime mongodb_store sensor_msgs tf visualization_msgs
 )
-include_directories(${GSL_INCLUDE_DIRS})
-
-###########
-## Build ##
-###########
 
 include_directories(
   include
@@ -77,10 +72,6 @@ target_link_libraries (circle_finder
     ${catkin_LIBRARIES}
 )
 
-#############
-## Install ##
-#############
-
 install(TARGETS
     CCircleDetect
     CRawImage
@@ -90,11 +81,11 @@ install(TARGETS
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
- install(DIRECTORY include/
+install(DIRECTORY include/
     DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
     FILES_MATCHING PATTERN "*.h"
     PATTERN ".svn" EXCLUDE
-    )
+)
 
 install(DIRECTORY launch
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
@@ -102,10 +93,4 @@ install(DIRECTORY launch
 
 install(DIRECTORY doc
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
-
-
-
-include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
-pkg_check_modules(GSL REQUIRED gsl)
-link_directories(${GSL_LIBRARY_DIRS})
+)
