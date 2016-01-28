@@ -45,6 +45,7 @@ include_directories(
 
 # Libraries
 add_library(CCircleDetect src/CCircleDetect.cpp)
+add_library(CNecklace src/CNecklace.cpp)
 add_library(CRawImage src/CRawImage.cpp)
 add_library(CTransformation src/CTransformation.cpp)
 add_library(FindCircle src/FindCircle.cpp)
@@ -65,6 +66,7 @@ add_dependencies(circle_finder ${PROJECT_NAME}_generate_messages_cpp ${catkin_EX
 
 target_link_libraries (circle_finder
     CCircleDetect
+    CNecklace
     CRawImage
     CTransformation
     gsl
@@ -74,6 +76,7 @@ target_link_libraries (circle_finder
 
 install(TARGETS
     CCircleDetect
+    CNecklace
     CRawImage
     CTransformation
     circle_finder 

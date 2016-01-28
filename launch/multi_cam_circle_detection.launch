@@ -1,11 +1,40 @@
 <?xml version="1.0"?>
 <launch>
-	<node name="whycon" pkg="circle_detection" type="circle_finder" required="true" output="screen">
-		<param name="circle_diameter" type="double" value="0.0925" />
-		<remap from="/camera/image_rect_color" to="/camera/rgb/image_color"/>
-		<remap from="/camera/camera_info" to="/camera/rgb/camera_info"/>
+	<!-- Start WhyCon On Camera One -->
+	<node name="cameraOne" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+		<param name="circle_diameter" type="double" value="0.05" />
+		<param name="identify" type="bool" value="true" />
+		<remap from="/camera/image_rect_color" to="/cameraOne/rgb/image_color"/>
+		<remap from="/camera/camera_info" to="/cameraOne/rgb/camera_info"/>
 	</node>
-	<node name="view_left" pkg="image_view" type="image_view" required="true">
-		<remap from="image" to="/whycon/processedimage"/>
+
+	<!-- Start WhyCon On Camera Two -->
+	<node name="cameraTwo" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+		<param name="circle_diameter" type="double" value="0.05" />
+		<param name="identify" type="bool" value="true" />
+		<remap from="/camera/image_rect_color" to="/cameraTwo/rgb/image_color"/>
+		<remap from="/camera/camera_info" to="/cameraTwo/rgb/camera_info"/>
 	</node>
+
+	<!-- Start WhyCon On Camera Three -->
+	<node name="cameraThree" pkg="circle_detection" type="circle_finder" required="true" output="screen">
+		<param name="circle_diameter" type="double" value="0.05" />
+		<param name="identify" type="bool" value="true" />
+		<remap from="/camera/image_rect_color" to="/cameraThree/left_hand_camera/image"/>
+		<remap from="/camera/camera_info" to="/cameraThree/left_hand_camera/camera_info"/>
+	</node>
+
+    <!-- Start Image View To See Processed Image -->
+	<node name="near_view" pkg="image_view" type="image_view" required="true">
+		<remap from="image" to="/cameraOne/processedimage"/>
+	</node>
+	<!-- Start Image View To See Processed Image -->
+	<node name="far_view" pkg="image_view" type="image_view" required="true">
+		<remap from="image" to="/cameraTwo/processedimage"/>
+	</node>
+	<!-- Start Image View To See Processed Image -->
+	<node name="left_arm_view" pkg="image_view" type="image_view" required="true">
+		<remap from="image" to="/cameraThree/processedimage"/>
+	</node>
+
 </launch>

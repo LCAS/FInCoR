@@ -3,7 +3,7 @@
 void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     if (image->bpp != msg->step / msg->width || image->width != msg->width || image->height != msg->height) {
         delete image;
-        ROS_DEBUG("Readjusting image format from %ix%i %ibpp, to %ix%i %ibpp.", image->width, image->height, image->bpp, msg->width, msg->height, msg->step / msg->width);
+        ROS_INFO("Readjusting image format from %ix%i %ibpp, to %ix%i %ibpp.", image->width, image->height, image->bpp, msg->width, msg->height, msg->step / msg->width);
         image = new CRawImage(msg->width, msg->height, msg->step / msg->width);
     }
 
@@ -12,7 +12,6 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     circle_detection::detection_results_array tracked_objects;
     tracked_objects.header = msg->header;
     visualization_msgs::MarkerArray marker_list;
-
     //search image for circles
     for (int i = 0; i < MAX_PATTERNS; i++) {
         lastSegmentArray[i] = currentSegmentArray[i];
@@ -44,9 +43,8 @@ void FindCircle::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             objectsToAdd.pose.orientation.y = q.getY();
             objectsToAdd.pose.orientation.z = q.getZ();
             objectsToAdd.pose.orientation.w = q.getW();
-
-            // This needs to be replaced with a unique label as ratio is unreliable
-            objectsToAdd.uuid = i;
+            if(identify)objectsToAdd.id = convertInt(objectArray[i].ID);
+            else objectsToAdd.id = "[Not Set]";
             objectsToAdd.roundness = objectArray[i].roundness;
             objectsToAdd.bwratio = objectArray[i].bwratio;
             objectsToAdd.esterror = objectArray[i].esterror;
@@ -91,10 +89,12 @@ void FindCircle::cameraInfoCallBack(const sensor_msgs::CameraInfo &msg) {
 
 FindCircle::FindCircle(void) {
     nh = new ros::NodeHandle("~");
-    defaultImageWidth = 640;
-    defaultImageHeight = 480;
+    defaultImageWidth = 1280;
+    defaultImageHeight = 800;
     if (!nh->getParam("circle_diameter", circleDiameter))
         throw std::runtime_error("Private parameter \"circle_diameter\" is missing");
+    if (!nh->getParam("identify", identify))
+        throw std::runtime_error("Private parameter \"identify\" is missing");
     node_name = ros::this_node::getName();
 }
 
@@ -106,10 +106,10 @@ FindCircle::~FindCircle(void) {
 
 void FindCircle::init(void) {
     image_transport::ImageTransport it(*nh);
-    nh->subscribe("/camera/camera_info", 1, &FindCircle::cameraInfoCallBack, this);
+    subinfo = nh->subscribe("/camera/camera_info", 1, &FindCircle::cameraInfoCallBack, this);
     image = new CRawImage(defaultImageWidth, defaultImageHeight, 4);
     trans = new CTransformation(circleDiameter, nh);
-    for (int i = 0; i < MAX_PATTERNS; i++) detectorArray[i] = new CCircleDetect(defaultImageWidth, defaultImageHeight);
+    for (int i = 0; i < MAX_PATTERNS; i++) detectorArray[i] = new CCircleDetect(defaultImageWidth, defaultImageHeight, identify);
     image->getSaveNumber();
     subim = it.subscribe("/camera/image_rect_color", 1, &FindCircle::imageCallback, this);
     imdebug = it.advertise("/" + node_name+ "/processedimage", 0);
@@ -118,6 +118,11 @@ void FindCircle::init(void) {
     lookup = new tf::TransformListener();
     ROS_DEBUG("Server running");
     ros::spin();
+}
+
+std::string FindCircle::convertInt(int number)
+{
+   std::stringstream ss;ss << number;return ss.str();
 }
 
 int main(int argc, char* argv[]) {

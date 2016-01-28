@@ -19,11 +19,10 @@
 #include <tf/transform_datatypes.h>
 #include <sensor_msgs/Image.h>
 #include <math.h>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <map>
 #include <string>
+#include <iostream>
+
 
 #define MAX_PATTERNS 16
 
@@ -32,6 +31,7 @@ public:
 
     int defaultImageWidth;
     int defaultImageHeight;
+    bool identify;
     float circleDiameter;
     std::string node_name;
     void loadConfig(void);
@@ -47,6 +47,8 @@ private:
     tf::TransformListener* lookup;
     ros::Publisher tracks_pub, vis_pub;
     image_transport::Subscriber subim;
+    ros::Subscriber subinfo;
+    std::string convertInt(int number);
     
     CRawImage *image;
     CCircleDetect *detectorArray[MAX_PATTERNS];

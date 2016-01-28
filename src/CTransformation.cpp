@@ -654,6 +654,8 @@ STrackedObject CTransformation::transform(SSegment segment) {
     result = eigen(data);
     result.bwratio = segment.bwRatio;
     result.valid = boost::math::isnormal(result.x) && boost::math::isnormal(result.y) && boost::math::isnormal(result.z) && boost::math::isnormal(result.bwratio);
+    result.ID = segment.ID;
+    result.yaw = segment.angle;
     return result;
 }
 

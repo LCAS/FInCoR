@@ -32,6 +32,7 @@ typedef struct{
 	float error;
 	float esterror;
 	bool valid;
+	int ID;
 }STrackedObject;
 
 typedef struct{
